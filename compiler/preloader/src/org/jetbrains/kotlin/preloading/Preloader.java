@@ -41,7 +41,11 @@ public class Preloader {
         }
 
         try {
-            run(args);
+            String[] testArgs = {"-cp",  "./dist/kotlinc/lib/kotlin-compiler.jar", "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+                    "./compilerTestData/Test.kt", "-include-runtime",
+                    "-d", "./compilerTestData/Test.jar"
+            };
+            run(testArgs);
         }
         catch (PreloaderException e) {
             System.err.println("error: " + e.toString());
