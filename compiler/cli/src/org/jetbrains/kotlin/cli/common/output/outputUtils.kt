@@ -30,7 +30,7 @@ fun OutputFileCollection.writeAll(outputDir: File, report: ((sources: List<File>
         val output = File(outputDir, file.relativePath)
         report?.invoke(sources, output)
         try {
-            FileUtil.writeToFile(output, file.asByteArray())
+            output.writeText(file.asText())
         } catch (e: FileNotFoundException) {
             if (outputDir.isDirectory) {
                 // output directory exists

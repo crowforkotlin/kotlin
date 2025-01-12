@@ -139,6 +139,7 @@ class ClassCodegen private constructor(
     private var generated = false
 
     fun generate() {
+        println("here start generate")
         // TODO: reject repeated generate() calls; currently, these can happen for objects in finally
         //       blocks since they are `accept`ed once per each CFG edge out of the try-finally.
         if (generated) return

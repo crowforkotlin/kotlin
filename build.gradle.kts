@@ -233,6 +233,7 @@ val fe10CompilerModules = arrayOf(
     ":compiler:cli-base",
     ":compiler:cli",
     ":compiler:cli-js",
+    ":compiler:cli-jack",
     ":compiler:incremental-compilation-impl",
     ":js:js.ast",
     ":js:js.sourcemap",
@@ -695,6 +696,43 @@ gradle.taskGraph.whenReady {
 val dist = tasks.register("dist") {
     dependsOn(":kotlin-compiler:dist")
 }
+
+afterEvaluate {
+// build.gradle.kts
+// build.gradle.kts
+    tasks.register("printTaskDependencies") {
+
+        fun getAllDependencies(task: Task, visited: MutableSet<Task> = mutableSetOf()): Set<Task> {
+            if (visited.contains(task)) {
+                return visited
+            }
+            visited.add(task)
+
+            task.taskDependencies.getDependencies(task).forEach { dep ->
+                if (!visited.contains(dep)) {
+                    visited.add(dep)
+                    getAllDependencies(dep, visited)
+                }
+            }
+            return visited
+        }
+
+        doLast {
+            val taskName = ":kotlin-stdlib:jsJar" // 这里替换为你想要检查的任务名称
+            val task = tasks.getByPath(taskName)
+
+            val allDependencies = getAllDependencies(task)
+            println("Task '$taskName' 所有依赖任务:")
+            allDependencies.forEach { depTask ->
+                println(" - ${depTask.path}")
+            }
+        }
+    }
+
+
+}
+
+
 
 val syncMutedTests = tasks.register("syncMutedTests") {
     dependsOn(":compiler:tests-mutes:tc-integration:run")
