@@ -42,10 +42,10 @@ public class Preloader {
 
         try {
             String[] testArgs = {"-cp",  "./dist/kotlinc/lib/kotlin-compiler.jar", "org.jetbrains.kotlin.cli.jack.K2JackCompiler",
+                    "-Xir-produce-klib-file",
                     "-libraries","./dist/kotlinc/lib/kotlin-stdlib-js.klib",
                     "-ir-output-dir","/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData2","-ir-output-name","TestKotlin",
-                    "-Xinclude=/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData/TestKotlin.klib",
-                    "-Xir-produce-js",
+                    "/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData/Test.kt"
             };
             run(testArgs);
         }
