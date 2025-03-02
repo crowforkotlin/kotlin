@@ -6,27 +6,40 @@
 package org.jetbrains.kotlin.cli.jack
 
 import org.jetbrains.kotlin.KtSourceFile
+import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.cli.common.*
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
+import org.jetbrains.kotlin.config.languageVersionSettings
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
+import org.jetbrains.kotlin.diagnostics.impl.PendingDiagnosticsCollectorWithSuppress
 import org.jetbrains.kotlin.fir.BinaryModuleData
 import org.jetbrains.kotlin.fir.DependencyListForCliModule
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.backend.Fir2IrConfiguration
+import org.jetbrains.kotlin.fir.backend.Fir2IrExtensions
+import org.jetbrains.kotlin.fir.backend.Fir2IrVisibilityConverter
+import org.jetbrains.kotlin.fir.descriptors.FirModuleDescriptor
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
-import org.jetbrains.kotlin.fir.pipeline.ModuleCompilerAnalyzedOutput
-import org.jetbrains.kotlin.fir.pipeline.buildResolveAndCheckFirViaLightTree
-import org.jetbrains.kotlin.fir.pipeline.runPlatformCheckers
+import org.jetbrains.kotlin.fir.pipeline.*
 import org.jetbrains.kotlin.fir.session.KlibIcData
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.incremental.js.IncrementalDataProvider
+import org.jetbrains.kotlin.ir.backend.js.JsFactories
 import org.jetbrains.kotlin.ir.backend.js.ModulesStructure
+import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsManglerIr
+import org.jetbrains.kotlin.library.unresolvedDependencies
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.js.JsPlatforms
 import org.jetbrains.kotlin.platform.wasm.WasmPlatforms
 import org.jetbrains.kotlin.platform.wasm.WasmTarget
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.wasm.config.WasmConfigurationKeys
 import java.nio.file.Paths
+import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 
 inline fun <F> compileModuleToAnalyzedFir(
     moduleStructure: ModulesStructure,
@@ -121,5 +134,51 @@ open class AnalyzedFirOutput(val output: List<ModuleCompilerAnalyzedOutput>) {
         }
 
         return false
+    }
+}
+
+fun transformFirToIr(
+    moduleStructure: ModulesStructure,
+    firOutputs: List<ModuleCompilerAnalyzedOutput>,
+    diagnosticsReporter: PendingDiagnosticsCollectorWithSuppress,
+): Fir2IrActualizedResult {
+    val fir2IrExtensions = Fir2IrExtensions.Default
+
+    var builtInsModule: KotlinBuiltIns? = null
+    val dependencies = mutableListOf<ModuleDescriptorImpl>()
+
+    val librariesDescriptors = moduleStructure.allDependencies.map { resolvedLibrary ->
+        val storageManager = LockBasedStorageManager("ModulesStructure")
+
+        val moduleDescriptor = JsFactories.DefaultDeserializedDescriptorFactory.createDescriptorOptionalBuiltIns(
+            resolvedLibrary,
+            moduleStructure.compilerConfiguration.languageVersionSettings,
+            storageManager,
+            builtInsModule,
+            packageAccessHandler = null,
+            lookupTracker = LookupTracker.DO_NOTHING
+        )
+        dependencies += moduleDescriptor
+        moduleDescriptor.setDependencies(ArrayList(dependencies))
+
+        val isBuiltIns = resolvedLibrary.unresolvedDependencies.isEmpty()
+        if (isBuiltIns) builtInsModule = moduleDescriptor.builtIns
+
+        moduleDescriptor
+    }
+
+    val firResult = FirResult(firOutputs)
+    return firResult.convertToIrAndActualize(
+        fir2IrExtensions,
+        Fir2IrConfiguration.forKlibCompilation(moduleStructure.compilerConfiguration, diagnosticsReporter),
+        IrGenerationExtension.getInstances(moduleStructure.project),
+        irMangler = JsManglerIr,
+        visibilityConverter = Fir2IrVisibilityConverter.Default,
+        kotlinBuiltIns = builtInsModule ?: DefaultBuiltIns.Instance,
+        typeSystemContextProvider = ::IrTypeSystemContextImpl,
+        specialAnnotationsProvider = null,
+        extraActualDeclarationExtractorsInitializer = { emptyList() },
+    ) { irModuleFragment ->
+        (irModuleFragment.descriptor as? FirModuleDescriptor)?.let { it.allDependencyModules = librariesDescriptors }
     }
 }

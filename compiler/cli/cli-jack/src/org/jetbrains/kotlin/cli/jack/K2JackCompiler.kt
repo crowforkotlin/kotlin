@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.library.metadata.KlibMetadataVersion
 import org.jetbrains.kotlin.metadata.deserialization.BinaryVersion
 import org.jetbrains.kotlin.utils.KotlinPaths
+import java.io.File
 
 class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
     class K2JSCompilerPerformanceManager : CommonCompilerPerformanceManager("Kotlin to Jack Compiler")
@@ -64,7 +65,7 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
         val environmentForJS = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JS_CONFIG_FILES)
         val mainModule = MainModule.SourceFiles(environmentForJS.getSourceFiles())
 
-        val libraries = listOf<String>()
+        val libraries: List<String> = configureLibraries(arguments.libraries) + listOfNotNull(arguments.includes)
         val friendLibraries = listOf<String>()
         val moduleStructure = ModulesStructure(environmentForJS.project, mainModule, configuration, libraries, friendLibraries)
         val messageCollector = configuration.getNotNull(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY)
@@ -95,8 +96,20 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
             lookupTracker = lookupTracker,
             useWasmPlatform = arguments.wasm,
         )
-        println("here:"+firOutput.output)
+        val fir2IrActualizedResult = transformFirToIr(moduleStructure, firOutput.output, diagnosticsReporter)
+        println("ir2firActualizedResult: $fir2IrActualizedResult")
         return OK
+    }
+
+
+    private fun configureLibraries(libraryString: String?): List<String> =
+        libraryString?.splitByPathSeparator() ?: emptyList()
+
+    private fun String.splitByPathSeparator(): List<String> {
+        return this.split(File.pathSeparator.toRegex())
+            .dropLastWhile { it.isEmpty() }
+            .toTypedArray()
+            .filterNot { it.isEmpty() }
     }
 
     override fun setupPlatformSpecificArgumentsAndServices(
