@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.config.getModuleNameForSource
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporterFactory
 import org.jetbrains.kotlin.fir.pipeline.buildResolveAndCheckFirViaLightTree
 import org.jetbrains.kotlin.incremental.components.LookupTracker
+import org.jetbrains.kotlin.ir.backend.jack.IrModuleToJackTransformer
 import org.jetbrains.kotlin.ir.backend.js.MainModule
 import org.jetbrains.kotlin.ir.backend.js.ModulesStructure
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
@@ -98,6 +99,7 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
         )
         val fir2IrActualizedResult = transformFirToIr(moduleStructure, firOutput.output, diagnosticsReporter)
         println("ir2firActualizedResult: $fir2IrActualizedResult")
+        IrModuleToJackTransformer().generateCode(fir2IrActualizedResult.irModuleFragment)
         return OK
     }
 

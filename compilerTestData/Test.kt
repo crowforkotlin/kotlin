@@ -6,7 +6,7 @@
 package compilerTestData
 
 class Test {
-    fun test(){
-        println("Test")
+    fun test() {
+        println(1 + (2 * 3))
     }
 }

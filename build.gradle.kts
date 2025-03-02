@@ -224,6 +224,7 @@ val fe10CompilerModules = arrayOf(
     ":compiler:backend.jvm.codegen",
     ":compiler:backend.jvm.entrypoint",
     ":compiler:backend.js",
+    ":compiler:backend.jack",
     ":compiler:backend.wasm",
     ":kotlin-util-klib-metadata",
     ":compiler:backend-common",
