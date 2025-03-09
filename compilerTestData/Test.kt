@@ -5,8 +5,18 @@
 
 package compilerTestData
 
-class Test {
-    fun test() {
-        println(1 + (2 * 3))
+object Main {
+    fun fibonacciRecursive(n: Int): Int {
+        if (n < 2) {
+            return n
+        } else {
+            return fibonacciRecursive(n - 1) + fibonacciRecursive(n - 2)
+        }
+    }
+
+    fun main() {
+        val result = fibonacciRecursive(4)
+        println(result)
+        return
     }
 }

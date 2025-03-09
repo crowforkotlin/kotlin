@@ -5,17 +5,15 @@
 
 package org.jetbrains.kotlin.ir.backend.jack.transformers
 
-import org.jetbrains.kotlin.ir.declarations.IrConstructor
+import org.jetbrains.kotlin.ir.backend.jack.utils.JackGenerationContext
 import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 
-class IrFileToJackTransformer : IrElementVisitorVoid {
+class IrFileToJackTransformer : BaseIrElementToJackTransformer {
 
-    override fun visitFile(declaration: IrFile) {
-        super.visitFile(declaration)
+    override fun visitFile(declaration: IrFile, context: JackGenerationContext) {
+        super.visitFile(declaration, context)
         declaration.declarations.forEach {
-            it.accept(IrDeclarationToJackTransformer(), null)
+            it.accept(IrDeclarationToJackTransformer(), context)
         }
     }
 }

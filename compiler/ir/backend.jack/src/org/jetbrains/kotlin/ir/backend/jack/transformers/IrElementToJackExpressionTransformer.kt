@@ -5,34 +5,51 @@
 
 package org.jetbrains.kotlin.ir.backend.jack.transformers
 
+import org.jetbrains.kotlin.ir.backend.jack.utils.JackGenerationContext
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.util.isElseBranch
 
-class IrElementToJackExpressionTransformer : IrElementVisitorVoid {
+class IrElementToJackExpressionTransformer : BaseIrElementToJackTransformer {
 
-    override fun visitConst(expression: IrConst) {
-        super.visitConst(expression)
-        println("here visitConst")
+    override fun visitConst(expression: IrConst, context: JackGenerationContext) {
+        super.visitConst(expression, context)
+        context.writeCode("push constant ${expression.value}")
     }
 
-    override fun visitExpressionBody(body: IrExpressionBody) {
-        super.visitExpressionBody(body)
+    override fun visitExpressionBody(body: IrExpressionBody, data: JackGenerationContext) {
+        super.visitExpressionBody(body, data)
         println("here visitExpressionBody")
     }
 
-    override fun visitStringConcatenation(expression: IrStringConcatenation) {
-        super.visitStringConcatenation(expression)
+    override fun visitStringConcatenation(expression: IrStringConcatenation, data: JackGenerationContext) {
+        super.visitStringConcatenation(expression, data)
         println("here visitStringConcatenation")
     }
 
-    override fun visitConstructorCall(expression: IrConstructorCall) {
-        super.visitConstructorCall(expression)
+    override fun visitConstructorCall(expression: IrConstructorCall, data: JackGenerationContext) {
+        super.visitConstructorCall(expression, data)
         println("here visitConstructorCall")
     }
 
-    override fun visitCall(expression: IrCall) {
-        super.visitCall(expression)
+    override fun visitCall(expression: IrCall, data: JackGenerationContext) {
+        super.visitCall(expression, data)
         println("here visitCall")
-        translateCall(expression, this)
+        translateCall(expression, this, data)
+    }
+
+    override fun visitSetValue(expression: IrSetValue, data: JackGenerationContext) {
+        super.visitSetValue(expression, data)
+    }
+
+    override fun visitGetValue(expression: IrGetValue, context: JackGenerationContext) {
+        super.visitGetValue(expression, context)
+        val owner = expression.symbol.owner
+        context.getValue(owner)
+        println("here get value")
+    }
+
+    override fun visitWhen(expression: IrWhen, context: JackGenerationContext) {
+        super.visitWhen(expression, context)
+        println("inner visit when")
     }
 }

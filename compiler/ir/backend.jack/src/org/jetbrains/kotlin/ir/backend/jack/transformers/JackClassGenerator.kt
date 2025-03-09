@@ -5,15 +5,16 @@
 
 package org.jetbrains.kotlin.ir.backend.jack.transformers
 
+import org.jetbrains.kotlin.ir.backend.jack.utils.JackGenerationContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 
 class JackClassGenerator(private val irClass: IrClass) {
-    fun generate() {
+    fun generate(context: JackGenerationContext) {
         for (declaration in irClass.declarations) {
             when (declaration) {
                 is IrSimpleFunction -> {
-                    declaration.accept(IrFunctionToJackTransformer(), null)
+                    declaration.accept(IrFunctionToJackTransformer(), context)
                 }
             }
         }

@@ -5,25 +5,25 @@
 
 package org.jetbrains.kotlin.ir.backend.jack.transformers
 
+import org.jetbrains.kotlin.ir.backend.jack.utils.JackGenerationContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 
-class IrDeclarationToJackTransformer: IrElementVisitorVoid {
-    override fun visitClass(declaration: IrClass) {
-        super.visitClass(declaration)
+class IrDeclarationToJackTransformer : BaseIrElementToJackTransformer {
+    override fun visitClass(declaration: IrClass, data: JackGenerationContext) {
+        super.visitClass(declaration, data)
         println("here visitClass")
-        JackClassGenerator(declaration).generate()
+        JackClassGenerator(declaration).generate(data)
     }
 
-    override fun visitSimpleFunction(declaration: IrSimpleFunction) {
-        super.visitSimpleFunction(declaration)
+    override fun visitSimpleFunction(declaration: IrSimpleFunction, data: JackGenerationContext) {
+        super.visitSimpleFunction(declaration, data)
         println("here visitSimpleFunction")
     }
 
-    override fun visitConstructor(declaration: IrConstructor) {
-        super.visitConstructor(declaration)
+    override fun visitConstructor(declaration: IrConstructor, data: JackGenerationContext) {
+        super.visitConstructor(declaration, data)
         println("here visitConstructor")
     }
 }

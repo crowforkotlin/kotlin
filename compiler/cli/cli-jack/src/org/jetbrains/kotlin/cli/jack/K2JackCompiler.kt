@@ -56,14 +56,16 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
         paths: KotlinPaths?,
     ): ExitCode {
         println("execute Kotlinc jack2")
-        val outputName = arguments.moduleName
+        val outputDirPath = arguments.outputDir ?: return COMPILATION_ERROR
+        val outputName = arguments.moduleName ?: return COMPILATION_ERROR
         val commonSourcesArray = arguments.commonSources
         val commonSources = commonSourcesArray?.toSet() ?: emptySet()
         val hmppCliModuleStructure = configuration.get(CommonConfigurationKeys.HMPP_MODULE_STRUCTURE)
         for (arg in arguments.freeArgs) {
             configuration.addKotlinSourceRoot(arg, commonSources.contains(arg), hmppCliModuleStructure?.getModuleNameForSource(arg))
         }
-        val environmentForJS = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JS_CONFIG_FILES)
+        val environmentForJS =
+            KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JS_CONFIG_FILES)
         val mainModule = MainModule.SourceFiles(environmentForJS.getSourceFiles())
 
         val libraries: List<String> = configureLibraries(arguments.libraries) + listOfNotNull(arguments.includes)
@@ -73,11 +75,6 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
         val diagnosticsReporter = DiagnosticReporterFactory.createPendingReporter(messageCollector)
         val groupedSources = collectSources(configuration, environmentForJS.project, messageCollector)
         val lookupTracker = configuration.get(CommonConfigurationKeys.LOOKUP_TRACKER) ?: LookupTracker.DO_NOTHING
-
-        if (outputName == null) {
-            messageCollector.report(ERROR, "IR: Specify output name via -ir-output-name", null)
-            return COMPILATION_ERROR
-        }
 
         val configurationJs = environmentForJS.configuration
         val moduleName = arguments.irModuleName ?: outputName
@@ -99,7 +96,7 @@ class K2JackCompiler() : CLICompiler<K2JSCompilerArguments>() {
         )
         val fir2IrActualizedResult = transformFirToIr(moduleStructure, firOutput.output, diagnosticsReporter)
         println("ir2firActualizedResult: $fir2IrActualizedResult")
-        IrModuleToJackTransformer().generateCode(fir2IrActualizedResult.irModuleFragment)
+        IrModuleToJackTransformer().generateCode(fir2IrActualizedResult.irModuleFragment, outputDirPath, outputName)
         return OK
     }
 
