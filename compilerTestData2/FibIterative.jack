@@ -3,24 +3,24 @@ push argument 0
 push constant 0
 eq
 not
-if-goto TestKotlin_1
+if-goto FibIterative_1
 push constant 0
 return
-goto TestKotlin_0
-label TestKotlin_1
-label TestKotlin_0
+goto FibIterative_0
+label FibIterative_1
+label FibIterative_0
 push constant 0
 pop local 0
 push constant 1
 pop local 1
 push constant 1
 pop local 2
-label TestKotlin_2
+label FibIterative_2
 push local 2
 push argument 0
 lt
 not
-if-goto TestKotlin_3
+if-goto FibIterative_3
 push local 0
 push local 1
 add
@@ -33,8 +33,8 @@ push local 2
 push constant 1
 add
 pop local 2
-goto TestKotlin_2
-label TestKotlin_3
+goto FibIterative_2
+label FibIterative_3
 push local 1
 return
 function Main.main 1

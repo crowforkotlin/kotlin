@@ -10,12 +10,11 @@ object Main {
         if (n == 0) return 0
         var a = 0
         var b = 1
-        var next = 0
         var count = 1  // 已经计算到第1项（从0开始）
 
         // 循环直到计算到第n项
         while (count < n) {
-            next = a + b
+            val next = a + b
             a = b       // 更新前一项
             b = next    // 更新当前项
             count = count + 1     // 计数器递增

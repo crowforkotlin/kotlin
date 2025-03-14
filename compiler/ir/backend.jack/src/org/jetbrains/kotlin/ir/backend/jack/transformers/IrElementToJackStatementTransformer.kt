@@ -35,10 +35,6 @@ class IrElementToJackStatementTransformer : BaseIrElementToJackTransformer {
         expression.statements.map { it.accept(this, data) }
     }
 
-//    override fun visitSetValue(expression: IrSetValue, data: JackGenerationContext) {
-//        expression.accept(IrElementToJackExpressionTransformer(), data)
-//    }
-
     override fun visitWhen(expression: IrWhen, context: JackGenerationContext) {
         println("here visitWhen")
         if (expression.origin == IrStatementOrigin.IF) {
@@ -46,7 +42,7 @@ class IrElementToJackStatementTransformer : BaseIrElementToJackTransformer {
             expression.branches.forEach { br ->
                 var branchLabel = ""
                 if (!isElseBranch(br)) {
-                    br.condition.accept(this, context)
+                    br.condition.accept(IrElementToJackExpressionTransformer(), context)
                     context.writeCode("not")
                     branchLabel = context.getLabelName()
                     context.writeCode("if-goto $branchLabel")

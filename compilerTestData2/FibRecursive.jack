@@ -1,0 +1,30 @@
+function Main.fibonacciRecursive 0
+push argument 0
+push constant 2
+lt
+not
+if-goto FibRecursive_1
+push argument 0
+return
+goto FibRecursive_0
+label FibRecursive_1
+push argument 0
+push constant 1
+sub
+call Main.fibonacciRecursive 1
+push argument 0
+push constant 2
+sub
+call Main.fibonacciRecursive 1
+add
+return
+label FibRecursive_0
+function Main.main 1
+push constant 4
+call Main.fibonacciRecursive 1
+pop local 0
+push local 0
+call Output.printInt 1
+pop temp 0
+push constant 0
+return
