@@ -44,7 +44,7 @@ public class Preloader {
             String[] testArgs = {"-cp",  "./dist/kotlinc/lib/kotlin-compiler.jar", "org.jetbrains.kotlin.cli.jack.K2JackCompiler",
                     "-Xir-produce-klib-file",
                     "-libraries","./dist/kotlinc/lib/kotlin-stdlib-js.klib",
-                    "-ir-output-dir","/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData2","-ir-output-name","Simple",
+                    "-ir-output-dir","/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData","-ir-output-name","Simple",
                     "/Users/jiangjunxiang/AndroidProject/leo/kotlin/compilerTestData/Simple.kt"
             };
             run(testArgs);
