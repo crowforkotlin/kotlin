@@ -37,8 +37,10 @@ class IrElementToJackExpressionTransformer : BaseIrElementToJackTransformer {
         translateCall(expression, this, data)
     }
 
-    override fun visitSetValue(expression: IrSetValue, data: JackGenerationContext) {
-        super.visitSetValue(expression, data)
+    override fun visitSetValue(expression: IrSetValue, context: JackGenerationContext) {
+        expression.value.accept(this, context)
+        val owner = expression.symbol.owner
+        context.setValue(owner)
     }
 
     override fun visitGetValue(expression: IrGetValue, context: JackGenerationContext) {

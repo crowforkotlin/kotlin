@@ -48,6 +48,12 @@ class JackGenerationContext(private val outputDirPath: String, private val outpu
         }
     }
 
+    fun setValue(name: IrDeclarationWithName) {
+        if (localNameCache.containsKey(name)) {
+            writeCode("pop local ${localNameCache[name]}")
+        }
+    }
+
     fun getLabelName(): String {
         val labelName = "${outputName}_${labelIndex}"
         labelIndex++

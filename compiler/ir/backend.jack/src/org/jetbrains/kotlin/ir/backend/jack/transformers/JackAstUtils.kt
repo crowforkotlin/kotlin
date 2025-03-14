@@ -39,6 +39,9 @@ fun translateCall(
         IrStatementOrigin.LT -> {
             context.writeCode("lt")
         }
+        IrStatementOrigin.EQEQ -> {
+            context.writeCode("eq")
+        }
         else -> {
             if (expression.symbol.owner.name.asString() == "println") {
                 context.writeCode("call Output.printInt 1")

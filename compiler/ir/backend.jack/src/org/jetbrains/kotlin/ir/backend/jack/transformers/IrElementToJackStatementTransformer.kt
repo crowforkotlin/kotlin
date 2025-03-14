@@ -13,6 +13,8 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.isElseBranch
+import org.jetbrains.kotlin.js.backend.ast.JsEmpty
+import org.jetbrains.kotlin.js.backend.ast.JsWhile
 import org.jetbrains.kotlin.utils.toSmartList
 
 class IrElementToJackStatementTransformer : BaseIrElementToJackTransformer {
@@ -32,6 +34,10 @@ class IrElementToJackStatementTransformer : BaseIrElementToJackTransformer {
         println("here visitBlock")
         expression.statements.map { it.accept(this, data) }
     }
+
+//    override fun visitSetValue(expression: IrSetValue, data: JackGenerationContext) {
+//        expression.accept(IrElementToJackExpressionTransformer(), data)
+//    }
 
     override fun visitWhen(expression: IrWhen, context: JackGenerationContext) {
         println("here visitWhen")
@@ -53,6 +59,18 @@ class IrElementToJackStatementTransformer : BaseIrElementToJackTransformer {
             }
             context.writeCode("label $elseLabel")
         }
+    }
+
+    override fun visitWhileLoop(loop: IrWhileLoop, context: JackGenerationContext) {
+        val whileStartLabel = context.getLabelName()
+        val whileEndLabel = context.getLabelName()
+        context.writeCode("label $whileStartLabel")
+        loop.condition.accept(IrElementToJackExpressionTransformer(), context)
+        context.writeCode("not")
+        context.writeCode("if-goto $whileEndLabel")
+        loop.body?.accept(this, context)
+        context.writeCode("goto $whileStartLabel")
+        context.writeCode("label $whileEndLabel")
     }
 
     override fun visitExpression(expression: IrExpression, data: JackGenerationContext) {
