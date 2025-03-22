@@ -1,0 +1,48 @@
+function Main.fibonacciRecursive 4
+push argument 0
+push constant 0
+eq
+not
+if-goto FibIterative_1
+push constant 0
+return
+goto FibIterative_0
+label FibIterative_1
+label FibIterative_0
+push constant 0
+pop local 0
+push constant 1
+pop local 1
+push constant 1
+pop local 2
+label FibIterative_2
+push local 2
+push argument 0
+lt
+not
+if-goto FibIterative_3
+push local 0
+push local 1
+add
+pop local 3
+push local 1
+pop local 0
+push local 3
+pop local 1
+push local 2
+push constant 1
+add
+pop local 2
+goto FibIterative_2
+label FibIterative_3
+push local 1
+return
+function Main.main 1
+push constant 4
+call Main.fibonacciRecursive 1
+pop local 0
+push local 0
+call Output.printInt 1
+pop temp 0
+push constant 0
+return

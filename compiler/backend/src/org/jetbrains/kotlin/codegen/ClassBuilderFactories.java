@@ -94,33 +94,7 @@ public class ClassBuilderFactories {
     }
     
     @NotNull
-    public static ClassBuilderFactory BINARIES = new ClassBuilderFactory() {
-        @NotNull
-        @Override
-        public ClassBuilderMode getClassBuilderMode() {
-            return ClassBuilderMode.FULL;
-        }
-
-        @NotNull
-        @Override
-        public ClassBuilder newClassBuilder(@NotNull JvmDeclarationOrigin origin) {
-            return new AbstractClassBuilder.Concrete(new BinaryClassWriter());
-        }
-
-        @Override
-        public String asText(ClassBuilder builder) {
-            throw new UnsupportedOperationException("BINARIES generator asked for text");
-        }
-
-        @Override
-        public byte[] asBytes(ClassBuilder builder) {
-            ClassWriter visitor = (ClassWriter) builder.getVisitor();
-            return visitor.toByteArray();
-        }
-
-        @Override
-        public void close() {}
-    };
+    public static ClassBuilderFactory BINARIES = new TestClassBuilderFactory();
 
     private ClassBuilderFactories() {
     }
